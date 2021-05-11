@@ -270,6 +270,71 @@ namespace pinocchio
       vxs(v,*this,M);
       return M;
     }
+
+    ///
+    /// \brief Performs the operation \f$ M = [v]_{\times} S_{3} - S_{3} [v]_{\times} - [S_{3} v]_{\times}\f$.       
+    ///
+    /// \tparam Vector3, Matrix3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    /// \param[in]  S3 a symmetric matrix of dimension 3x3.
+    /// \param[out] M  an output matrix of dimension 3x3.
+    ///
+    template<typename Vector3, typename Matrix3>
+    static void stob(const Eigen::MatrixBase<Vector3> & v,
+                    const Symmetric3Tpl & S3,
+                    const Eigen::MatrixBase<Matrix3> & M)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+      
+      const Scalar Ixx = 2*S3.data()[0];
+      const Scalar Ixy = 2*S3.data()[1];
+      const Scalar Iyy = 2*S3.data()[2];
+      const Scalar Ixz = 2*S3.data()[3];
+      const Scalar Iyz = 2*S3.data()[4];
+      const Scalar Izz = 2*S3.data()[5];
+      const Scalar tr = S3.data()[0] + S3.data()[2]+S3.data()[5];
+      const Scalar trxx = tr-Ixx;
+      const Scalar tryy = tr-Iyy;
+      const Scalar trzz = tr-Izz;
+
+      const typename Vector3::RealScalar & wx = v[0];
+      const typename Vector3::RealScalar & wy = v[1];
+      const typename Vector3::RealScalar & wz = v[2];
+      
+      Matrix3 & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,M);
+      M_(0,0) =  Ixz*wy - Ixy*wz;
+      M_(1,0) = -Ixz*wx - trxx*wz;
+      M_(2,0) =  Ixy*wx + trxx*wy;
+      
+      M_(0,1) =  Iyz*wy + tryy*wz;
+      M_(1,1) =  Ixy*wz - Iyz*wx;
+      M_(2,1) = -Ixy*wy - tryy*wx;
+      
+      M_(0,2) = -Iyz*wz - trzz*wy;
+      M_(1,2) =  Ixz*wz + trzz*wx;
+      M_(2,2) =  Iyz*wx - Ixz*wy;
+    }
+    
+    ///
+    /// \brief Performs the operation \f$ M = [v]_{\times} S_{3} - S_{3} [v]_{\times} - [S_{3} v]_{\times}\f$.
+    ///
+    /// \tparam Vector3
+    ///
+    /// \param[in]  v  a vector of dimension 3.
+    ///
+    /// \returns the result \f$ [v]_{\times} S_{3} - S_{3} [v]_{\times} - [S_{3} v]_{\times} \f$.
+    ///
+    template<typename Vector3>
+    Matrix3 stob(const Eigen::MatrixBase<Vector3> & v) const
+    {
+      Matrix3 M;
+      stob(v,*this,M);
+      return M;
+    }
+
+
     
     ///
     /// \brief Performs the operation \f$ M = S_{3} [v]_{\times} \f$.

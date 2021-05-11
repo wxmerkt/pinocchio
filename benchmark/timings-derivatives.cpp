@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/algorithm/rnea-derivatives-faster.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -201,6 +202,16 @@ int main(int argc, const char ** argv)
   }
   std::cout << "RNEA derivatives= \t\t"; timer.toc(std::cout,NBT);
 
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeRNEADerivativesFaster(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth],
+                           drnea_dq,drnea_dv,drnea_da);
+  }
+  std::cout << "RNEA derivatives v2= \t\t"; timer.toc(std::cout,NBT);
+
+#ifndef NO_FINITE_DIFFS
   timer.tic();
   SMOOTH(NBT/100)
   {
@@ -208,6 +219,7 @@ int main(int argc, const char ** argv)
             drnea_dq,drnea_dv,drnea_da);
   }
   std::cout << "RNEA finite differences= \t\t"; timer.toc(std::cout,NBT/100);
+#endif
 
   timer.tic();
   SMOOTH(NBT)
@@ -224,6 +236,7 @@ int main(int argc, const char ** argv)
   }
   std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
   
+#ifndef NO_FINITE_DIFFS
   timer.tic();
   SMOOTH(NBT)
   {
@@ -231,6 +244,7 @@ int main(int argc, const char ** argv)
            daba_dq,daba_dv,daba_dtau);
   }
   std::cout << "ABA finite differences= \t\t"; timer.toc(std::cout,NBT);
+#endif 
 
   timer.tic();
   SMOOTH(NBT)

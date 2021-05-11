@@ -38,6 +38,10 @@ namespace pinocchio
   , oMf((std::size_t)model.nframes,SE3::Identity())
   , Ycrb((std::size_t)model.njoints,Inertia::Zero())
   , dYcrb((std::size_t)model.njoints,Inertia::Zero())
+  // new stuff
+  , vJ((std::size_t)model.njoints,Motion::Zero())
+  , oBcrb((std::size_t)model.njoints,Coriolis::Zero())
+  // end new stuff
   , M(MatrixXs::Zero(model.nv,model.nv))
   , Minv(MatrixXs::Zero(model.nv,model.nv))
   , C(MatrixXs::Zero(model.nv,model.nv))
@@ -75,6 +79,15 @@ namespace pinocchio
   , nvSubtree_fromRow((std::size_t)model.nv,-1)
   , J(Matrix6x::Zero(6,model.nv))
   , dJ(Matrix6x::Zero(6,model.nv))
+  // other new stuff
+  , ddJ(Matrix6x::Zero(6,model.nv))
+  , vdJ(Matrix6x::Zero(6,model.nv))
+  , Ftmp1(Matrix6x::Zero(6,model.nv))
+  , Ftmp2(Matrix6x::Zero(6,model.nv))
+  , Ftmp3(Matrix6x::Zero(6,model.nv))
+  , Ftmp4(Matrix6x::Zero(6,model.nv))
+
+  // end other new stuff
   , dVdq(Matrix6x::Zero(6,model.nv))
   , dAdq(Matrix6x::Zero(6,model.nv))
   , dAdv(Matrix6x::Zero(6,model.nv))
