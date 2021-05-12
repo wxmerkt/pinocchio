@@ -87,15 +87,13 @@ namespace pinocchio
 
       // velocity and acceleration finishing
       ov += vJ;
-      oa += (ov ^ vJ);
-      oa += data.oMi[i].act( jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() );
+      oa += (ov ^ vJ) + data.oMi[i].act( jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() );
 
       // Composite rigid body inertia
       Inertia & oY =  data.oYcrb[i] ;
 
       oY = data.oMi[i].act(model.inertias[i]);
-      data.of[i] = oY*oa;
-      data.of[i] += oY.vxiv(ov);
+      data.of[i] = oY*oa + oY.vxiv(ov);
       data.oBcrb[i] = Coriolis(oY, ov );
     }
   };
