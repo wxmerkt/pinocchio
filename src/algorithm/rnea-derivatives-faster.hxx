@@ -39,19 +39,13 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
-      typedef typename Data::Matrix6 Matrix6;
-      typedef typename Data::Matrix3 Matrix3;
-      typedef typename Data::Vector3 Vector3;
       typedef typename Data::Inertia Inertia;
-      typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
 
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       Motion & vJ = data.vJ[i];
-      const Inertia & Y = model.inertias[i];
-      
 
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
