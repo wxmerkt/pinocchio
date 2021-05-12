@@ -85,15 +85,17 @@ namespace pinocchio
       motionSet::motionAction( vJ ,J_cols, vdJ_cols );
       vdJ_cols.noalias() += 2*dJ_cols;
 
-      // velocity and accelaration finishing
+      // velocity and acceleration finishing
       ov += vJ;
-      oa += (ov ^ vJ) + data.oMi[i].act( jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() );
+      oa += (ov ^ vJ);
+      oa += data.oMi[i].act( jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() );
 
       // Composite rigid body inertia
       Inertia & oY =  data.oYcrb[i] ;
 
       oY = data.oMi[i].act(model.inertias[i]);
-      data.of[i] = oY*oa + oY.vxiv(ov);
+      data.of[i] = oY*oa;
+      data.of[i] += oY.vxiv(ov);
       data.oBcrb[i] = Coriolis(oY, ov );
     }
   };
@@ -161,15 +163,17 @@ namespace pinocchio
         = J_cols.transpose()*data.Ftmp3.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
       rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),data.nvSubtree[i],jmodel.nv()).noalias()
-        = data.Ftmp1.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*ddJ_cols 
-          + data.Ftmp4.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*dJ_cols;
+        = data.Ftmp1.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*ddJ_cols;
+      rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),data.nvSubtree[i],jmodel.nv()).noalias()
+        += data.Ftmp4.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*dJ_cols;
 
       rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
         = J_cols.transpose()*data.Ftmp2.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
       rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),data.nvSubtree[i],jmodel.nv()).noalias()
-        = data.Ftmp1.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*vdJ_cols
-          + data.Ftmp4.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*J_cols;
+        = data.Ftmp1.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*vdJ_cols;
+      rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),data.nvSubtree[i],jmodel.nv()).noalias()
+        += data.Ftmp4.middleCols(jmodel.idx_v(),data.nvSubtree[i]).transpose()*J_cols;
       
       rnea_partial_da_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias() =
         J_cols.transpose()*data.Ftmp1.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
